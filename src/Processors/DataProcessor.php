@@ -4,6 +4,7 @@ namespace Yajra\DataTables\Processors;
 
 use Illuminate\Support\Arr;
 use Yajra\DataTables\Utilities\Helper;
+use Yajra\DataTables\Contracts\Formatter;
 
 class DataProcessor
 {
@@ -70,7 +71,7 @@ class DataProcessor
      * @param mixed $results
      * @param array $columnDef
      * @param array $templates
-     * @param int   $start
+     * @param int $start
      */
     public function __construct($results, array $columnDef, array $templates, $start)
     {
@@ -125,9 +126,16 @@ class DataProcessor
      */
     protected function addColumns($data, $row)
     {
-        foreach ($this->appendColumns as $key => $value) {
-            $value['content'] = Helper::compileContent($value['content'], $data, $row);
-            $data             = Helper::includeInArray($value, $data);
+        foreach ($this->appendColumns as $value) {
+            if ($value['content'] instanceof Formatter) {
+                $column = str_replace('_formatted', '', $value['name']);
+
+                $value['content'] = $value['content']->format($data[$column], $row);
+            } else {
+                $value['content'] = Helper::compileContent($value['content'], $data, $row);
+            }
+
+            $data = Helper::includeInArray($value, $data);
         }
 
         return $data;

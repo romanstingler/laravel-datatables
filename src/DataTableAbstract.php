@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Yajra\DataTables\Utilities\Helper;
 use Illuminate\Support\Traits\Macroable;
 use Yajra\DataTables\Contracts\DataTable;
+use Yajra\DataTables\Contracts\Formatter;
 use Illuminate\Contracts\Support\Jsonable;
 use Yajra\DataTables\Exceptions\Exception;
 use Illuminate\Contracts\Support\Arrayable;
@@ -179,6 +180,18 @@ abstract class DataTableAbstract implements DataTable, Arrayable, Jsonable
         $this->extraColumns[] = $name;
 
         $this->columnDef['append'][] = ['name' => $name, 'content' => $content, 'order' => $order];
+
+        return $this;
+    }
+
+    /**
+     * @param string $column
+     * @param \Yajra\DataTables\Contracts\Formatter $formatter
+     * @return $this
+     */
+    public function formatColumn($column, Formatter $formatter)
+    {
+        $this->addColumn($column . '_formatted', $formatter);
 
         return $this;
     }
